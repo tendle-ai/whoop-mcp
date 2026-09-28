@@ -10,10 +10,10 @@ strain, and workouts over time. Uses the official WHOOP v2 API and browser OAuth
 - [Plain-text documentation](https://whoop.tendle.ai/mcp/docs)
 - MCP URL: `https://whoop.tendle.ai/mcp`
 
-**OAuth configured:** the hosted connector advertises OAuth discovery, accepts
-client registration and serves browser consent. A member must authorize WHOOP
-before personal-data reads can be tested. This is not yet a verified live account
-connection or a completed client integration test.
+**Verified in Muse on 2026-09-28:** platform-managed OAuth with dynamic client
+registration and PKCE completed through a hosted HTTPS callback. The documentation,
+connected profile, and one recovery record were successfully read through Muse.
+Each user must authorize their own WHOOP account.
 
 ## Tools
 
@@ -122,15 +122,18 @@ Fresh retrieval does not mean the wearable has synced or scoring is finished.
 WHOOP's default app quotas are 100 requests/minute and 10,000/day, shared across
 members, including profile reads for token validation. New apps support up to ten
 members on the Sandbox tier. Higher tiers require WHOOP review. No claim of WHOOP
-approval or verified compatibility with every client is made. Exact client OAuth setup and
-live member-data tests remain necessary before launch.
+approval or verified compatibility with every client is made. Muse has been tested;
+other clients, including Grok bots, still require their own integration verification.
 
 ## Verification
 
 48 local tests pass, including an HTTP OAuth simulation through consent, PKCE,
 code replay rejection, token refresh, MCP reads, encrypted restart persistence,
-user isolation, pagination and upstream failures. Live WHOOP consent and real
-member-data reads still require an authorized member connection.
+user isolation, pagination and upstream failures. Live Muse setup completed with
+WHOOP sign-in, phone verification, consent, an HTTPS callback and a successful
+token exchange. `whoop_get_docs`, `whoop_get_profile`, and a one-record
+`whoop_list_records` recovery query succeeded. Refresh is covered by simulated
+HTTP tests; automatic refresh in Muse has not yet been observed.
 
 ## Research and provenance
 
