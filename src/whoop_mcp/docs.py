@@ -11,6 +11,7 @@ and body measurements through the official v2 API. This is a read-only connector
 It does not change WHOOP records or provide medical diagnosis.
 
 CONNECT
+Name the connector WHOOP.
 Add {base}/mcp to an MCP client supporting Streamable HTTP and OAuth.
 Use the client's built-in or platform-managed connector OAuth setup. Let it
 handle discovery, client registration, authorization-code PKCE, secure token
