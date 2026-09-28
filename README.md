@@ -103,6 +103,11 @@ uv run ruff format --check .
 uv build
 ```
 
+OAuth diagnostics record stage, method, HTTP status, known OAuth error code,
+and registration callback host with a server-generated request ID. They exclude
+query strings, headers, raw bodies, tokens, and health data. Full access logging
+remains disabled.
+
 ## Behavior and limits
 
 Time windows require offsets; pagination pins the end time. A returned page is not
@@ -120,7 +125,7 @@ live member-data tests remain necessary before launch.
 
 ## Verification
 
-40 local tests pass, including an HTTP OAuth simulation through consent, PKCE,
+47 local tests pass, including an HTTP OAuth simulation through consent, PKCE,
 code replay rejection, token refresh, MCP reads, encrypted restart persistence,
 user isolation, pagination and upstream failures. Live WHOOP consent and real
 member-data reads still require an authorized member connection.

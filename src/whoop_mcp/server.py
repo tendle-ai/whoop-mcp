@@ -14,6 +14,7 @@ from fastmcp.exceptions import ToolError
 from fastmcp.server.dependencies import get_access_token
 from pydantic import Field
 from starlette.applications import Starlette
+from starlette.middleware import Middleware
 from starlette.responses import (
     FileResponse,
     HTMLResponse,
@@ -24,6 +25,7 @@ from starlette.routing import Mount, Route
 
 from . import api, docs
 from .auth import WhoopOAuth, WhoopVerifier
+from .diagnostics import OAuthDiagnostics
 
 ASSETS = Path(__file__).resolve().parent / "assets"
 if not ASSETS.is_dir():
@@ -239,6 +241,7 @@ def create_app(
             Mount(prefix or "/", app=inner),
         ],
         lifespan=lifespan,
+        middleware=[Middleware(OAuthDiagnostics, prefix=prefix)],
     )
     app.state.mcp = mcp
     return app
