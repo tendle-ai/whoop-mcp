@@ -26,7 +26,7 @@
     "authentication": {
       "type": "oauth2",
       "credential": "WHOOP browser authorization; MCP-issued bearer token managed by the client",
-      "configuration": "Add the MCP URL in an OAuth-capable client and authorize your own WHOOP account in the browser. Do not paste credentials into prompts.",
+      "configuration": "Add the MCP URL using your client's built-in or platform-managed OAuth connector setup. Let the client register its callback and securely manage tokens. Hosted clients should use a platform HTTPS callback; localhost requires an active listener reachable from the browser. Authorize your WHOOP account, then verify with whoop_get_profile and a data read. Never put credentials in prompts.",
       "public_operations": [
         "product page",
         "manifest",

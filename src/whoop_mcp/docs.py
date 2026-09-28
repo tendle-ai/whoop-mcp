@@ -12,11 +12,23 @@ It does not change WHOOP records or provide medical diagnosis.
 
 CONNECT
 Add {base}/mcp to an MCP client supporting Streamable HTTP and OAuth.
+Use the client's built-in or platform-managed connector OAuth setup. Let it
+handle discovery, client registration, authorization-code PKCE, secure token
+storage, and refresh. No WHOOP developer app credentials are needed from users.
+WHOOP returns to {base}/auth/callback; Tendle then returns to the redirect URI
+registered by the connecting client. Hosted clients should use their platform's
+HTTPS callback. A loopback callback is appropriate only when the client provides
+an active listener reachable from the browser in the same network environment.
+Do not improvise a local listener for a hosted agent, invent a callback URL, or
+replace WHOOP's Tendle callback with the client's callback. If managed OAuth is
+unavailable, report the client's missing capability instead of repeatedly signing
+in. This connector does not provide device-code or manual connection-key setup.
 Authorize Tendle in your browser with WHOOP. Never put passwords or tokens in
 prompts, tool inputs, or URLs. All MCP requests require OAuth; this documentation,
 the manifest, product page, icon, and health endpoint are public.
 One connection represents the WHOOP account authorized in the browser. Run
-whoop_get_profile to confirm it. Reconnect to choose another WHOOP account.
+whoop_get_profile to confirm it, then retrieve a record to verify data access.
+A connected label alone does not verify reads. Reconnect to choose another account.
 The connector keeps encrypted OAuth credentials to refresh access; it does not
 persist health records. Your MCP client receives the health data you request.
 Remove Tendle's authorization in WHOOP's connected integrations to revoke access.
@@ -76,7 +88,7 @@ No guaranteed real-time wearable sync or snapshot-consistent historical export.
 All data depends on the authorized member's device, permissions, and WHOOP.
 New WHOOP developer apps start with a 10-member sandbox cap. Higher tiers require
 WHOOP review. Hosting is not WHOOP approval or verified compatibility with every
-agent. Muse/Grok client setup must support this OAuth flow.
+client. Each client must support the OAuth flow described above.
 
 TOOLS
 The input schemas below are generated from the registered tools. Defaults,

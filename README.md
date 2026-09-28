@@ -13,7 +13,7 @@ strain, and workouts over time. Uses the official WHOOP v2 API and browser OAuth
 **OAuth configured:** the hosted connector advertises OAuth discovery, accepts
 client registration and serves browser consent. A member must authorize WHOOP
 before personal-data reads can be tested. This is not yet a verified live account
-connection or a completed Muse/Grok client test.
+connection or a completed client integration test.
 
 ## Tools
 
@@ -31,6 +31,18 @@ Scores are not medical diagnoses. No journal, strength-training sets, continuous
 heart-rate stream, or write operations are exposed by this connector.
 
 ## Authentication and privacy
+
+Use the client's built-in or platform-managed OAuth connector setup. It should
+handle discovery, dynamic registration, authorization-code PKCE, secure credential
+storage, and refresh. Users do not need WHOOP developer app credentials.
+
+WHOOP returns to Tendle's `/auth/callback`, then Tendle redirects to the callback
+registered by the client. Hosted clients should provide a platform HTTPS callback.
+Loopback callbacks are appropriate only when an active client listener is reachable
+from the browser in the same network environment. Do not invent callback URLs or
+create an ad hoc localhost listener for a hosted agent. If the client cannot
+complete managed OAuth, report that limitation. Device-code and manual connection-key
+flows are not implemented. Keep WHOOP's registered callback pointing to Tendle.
 
 An OAuth-capable MCP client opens the WHOOP sign-in/consent flow. No Tendle account,
 manual API token, password, or health data in tool arguments is needed. Confirm the
@@ -103,7 +115,7 @@ Fresh retrieval does not mean the wearable has synced or scoring is finished.
 WHOOP's default app quotas are 100 requests/minute and 10,000/day, shared across
 members, including profile reads for token validation. New apps support up to ten
 members on the Sandbox tier. Higher tiers require WHOOP review. No claim of WHOOP
-approval or verified Muse/Grok compatibility is made. Exact client OAuth setup and
+approval or verified compatibility with every client is made. Exact client OAuth setup and
 live member-data tests remain necessary before launch.
 
 ## Verification
