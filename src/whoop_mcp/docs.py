@@ -12,6 +12,8 @@ It does not change WHOOP records or provide medical diagnosis.
 
 CONNECT
 Name the connector WHOOP.
+Use the dedicated WHOOP hostname below; other Tendle connectors have independent
+authentication. Do not substitute the catalog website URL for the MCP endpoint.
 Add {base}/mcp to an MCP client supporting Streamable HTTP and OAuth.
 Use the client's built-in or platform-managed connector OAuth setup. Let it
 handle discovery, client registration, authorization-code PKCE, secure token

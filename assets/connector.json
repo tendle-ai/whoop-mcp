@@ -9,7 +9,7 @@
     "Show my workouts from the past week with strain and heart-rate zones.",
     "Confirm which WHOOP account is connected and show my body measurements."
   ],
-  "connector_icon": "https://tendle.ai/connectors/whoop/mcp/icon",
+  "connector_icon": "https://whoop.tendle.ai/mcp/icon",
   "payments": false,
   "your_name": "Nathaniel Angafor",
   "work_email": "nate@tendle.ai",
@@ -20,9 +20,9 @@
   "technical_specs": {
     "protocol": "MCP",
     "transport": "streamable-http",
-    "endpoint": "https://tendle.ai/connectors/whoop/mcp",
-    "docs_url": "https://tendle.ai/connectors/whoop/mcp/docs",
-    "health_endpoint": "https://tendle.ai/connectors/whoop/healthz",
+    "endpoint": "https://whoop.tendle.ai/mcp",
+    "docs_url": "https://whoop.tendle.ai/mcp/docs",
+    "health_endpoint": "https://whoop.tendle.ai/healthz",
     "authentication": {
       "type": "oauth2",
       "credential": "WHOOP browser authorization; MCP-issued bearer token managed by the client",

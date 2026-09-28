@@ -7,8 +7,8 @@ strain, and workouts over time. Uses the official WHOOP v2 API and browser OAuth
 
 - [Product](https://tendle.ai/connectors/whoop)
 - [Manifest](https://tendle.ai/connectors/whoop/manifest.json)
-- [Plain-text documentation](https://tendle.ai/connectors/whoop/mcp/docs)
-- MCP URL: `https://tendle.ai/connectors/whoop/mcp`
+- [Plain-text documentation](https://whoop.tendle.ai/mcp/docs)
+- MCP URL: `https://whoop.tendle.ai/mcp`
 
 **OAuth configured:** the hosted connector advertises OAuth discovery, accepts
 client registration and serves browser consent. A member must authorize WHOOP
@@ -76,8 +76,8 @@ uv run --env-file .env whoop-mcp
 
 Register an app in the [WHOOP developer dashboard](https://developer-dashboard.whoop.com).
 Use the exact callback `PUBLIC_URL/auth/callback`, e.g.
-`http://localhost:8081/connectors/whoop/auth/callback` locally, or
-`https://tendle.ai/connectors/whoop/auth/callback` for the hosted connector.
+`http://localhost:8081/auth/callback` locally, or
+`https://whoop.tendle.ai/auth/callback` for the hosted connector.
 Enable `read:profile`, `read:body_measurement`, `read:cycles`, `read:recovery`,
 `read:sleep`, `read:workout`; request `offline` for refresh.
 
@@ -90,8 +90,10 @@ setup-pending error. Partial configuration fails startup. `/healthz` reports
 liveness and configuration, not proof that WHOOP is reachable or a grant works.
 
 For self-hosting, use HTTPS, one worker, a private persistent `FASTMCP_HOME`, and a
-unique base URL. Route the connector prefix plus its host-root path-aware OAuth
-well-known URLs to the application, preserving request paths. Disable access logs
+unique hostname. Route the hostname to the application, preserving request paths.
+WHOOP uses its own hostname because some clients reserve a hostname for one
+connector and reject a second connector on another path. The Tendle catalog
+remains at the product and manifest URLs above. Disable access logs
 on OAuth callback/token routes. WHOOP refresh tokens rotate; multiple workers or
 replicas are unsupported. Use the locked dependencies and protect secret backups.
 Update public manifest URLs and activation text for your own deployment.
@@ -125,7 +127,7 @@ live member-data tests remain necessary before launch.
 
 ## Verification
 
-47 local tests pass, including an HTTP OAuth simulation through consent, PKCE,
+48 local tests pass, including an HTTP OAuth simulation through consent, PKCE,
 code replay rejection, token refresh, MCP reads, encrypted restart persistence,
 user isolation, pagination and upstream failures. Live WHOOP consent and real
 member-data reads still require an authorized member connection.

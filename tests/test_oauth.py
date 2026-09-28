@@ -12,7 +12,7 @@ from whoop_mcp.auth import WhoopOAuth, WhoopVerifier
 from whoop_mcp.server import create_app
 
 pytestmark = pytest.mark.anyio
-BASE = "https://tendle.ai/connectors/whoop"
+BASE = "https://whoop.tendle.ai"
 
 
 @pytest.fixture
@@ -50,7 +50,10 @@ class UpstreamTokens:
         }
 
 
-async def test_oauth_http_round_trip_and_refresh(monkeypatch):
+@pytest.mark.parametrize("base", [BASE, "https://example.com/connectors/whoop"])
+async def test_oauth_http_round_trip_and_refresh(monkeypatch, base):
+    prefix = urlsplit(base).path
+
     async def whoop(request):
         assert request.headers["Authorization"] in (
             "Bearer whoop-member-access",
@@ -66,7 +69,7 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
             upstream_client_secret="fake-upstream-secret",
             jwt_signing_key="test-only-signing-key-never-production",
             token_verifier=WhoopVerifier(provider),
-            base_url=BASE,
+            base_url=base,
             client_storage=MemoryStore(),
             forward_pkce=False,
             forward_resource=False,
@@ -74,24 +77,25 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
             token_endpoint_auth_method="client_secret_post",
         )
         monkeypatch.setattr(auth, "_create_upstream_oauth_client", UpstreamTokens)
-        app = create_app(client=provider, auth=auth)
+        app = create_app(base=base, client=provider, auth=auth)
         async with app.router.lifespan_context(app):
             async with httpx.AsyncClient(
-                transport=httpx.ASGITransport(app=app), base_url="https://tendle.ai"
+                transport=httpx.ASGITransport(app=app),
+                base_url=f"https://{urlsplit(base).netloc}",
             ) as browser:
                 metadata = await browser.get(
-                    "/.well-known/oauth-authorization-server/connectors/whoop"
+                    "/.well-known/oauth-authorization-server" + prefix
                 )
                 assert metadata.status_code == 200
-                assert metadata.json()["issuer"] == BASE
-                assert metadata.json()["token_endpoint"] == BASE + "/token"
+                assert metadata.json()["issuer"] == (base if prefix else base + "/")
+                assert metadata.json()["token_endpoint"] == base + "/token"
                 resource = await browser.get(
-                    "/.well-known/oauth-protected-resource/connectors/whoop/mcp"
+                    "/.well-known/oauth-protected-resource" + prefix + "/mcp"
                 )
                 assert resource.status_code == 200
-                assert resource.json()["resource"] == BASE + "/mcp"
+                assert resource.json()["resource"] == base + "/mcp"
                 registration = await browser.post(
-                    BASE + "/register",
+                    base + "/register",
                     json={
                         "client_name": "Test MCP client",
                         "redirect_uris": ["https://client.example/callback"],
@@ -112,7 +116,7 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
                     .decode()
                 )
                 response = await browser.get(
-                    BASE + "/authorize",
+                    base + "/authorize",
                     params={
                         "client_id": registered["client_id"],
                         "redirect_uri": "https://client.example/callback",
@@ -121,7 +125,7 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
                         "code_challenge_method": "S256",
                         "state": "client-state",
                         "scope": " ".join(SCOPES),
-                        "resource": BASE + "/mcp",
+                        "resource": base + "/mcp",
                     },
                 )
                 assert response.status_code == 302, response.text
@@ -143,16 +147,16 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
                 )
                 assert response.status_code == 302, response.text
                 upstream = parse_qs(urlsplit(response.headers["location"]).query)
-                assert upstream["redirect_uri"] == [BASE + "/auth/callback"]
+                assert upstream["redirect_uri"] == [base + "/auth/callback"]
                 assert "code_challenge" not in upstream
                 assert "offline" in upstream["scope"][0].split()
                 invalid_state = await browser.get(
-                    BASE + "/auth/callback",
+                    base + "/auth/callback",
                     params={"code": "fake-whoop-code", "state": "unknown-state"},
                 )
                 assert invalid_state.status_code == 400
                 callback = await browser.get(
-                    BASE + "/auth/callback",
+                    base + "/auth/callback",
                     params={"code": "fake-whoop-code", "state": upstream["state"][0]},
                 )
                 assert callback.status_code == 302, callback.text
@@ -164,19 +168,19 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
                     "code_verifier": verifier,
                     "client_id": registered["client_id"],
                     "redirect_uri": "https://client.example/callback",
-                    "resource": BASE + "/mcp",
+                    "resource": base + "/mcp",
                 }
                 wrong_pkce = await browser.post(
-                    BASE + "/token",
+                    base + "/token",
                     data={**token_request, "code_verifier": "wrong" * 13},
                 )
                 assert wrong_pkce.status_code in (400, 401)
-                token_response = await browser.post(BASE + "/token", data=token_request)
+                token_response = await browser.post(base + "/token", data=token_request)
                 assert token_response.status_code == 200, token_response.text
                 tokens = token_response.json()
                 assert "whoop-member-access" not in token_response.text
                 assert (
-                    await browser.post(BASE + "/token", data=token_request)
+                    await browser.post(base + "/token", data=token_request)
                 ).status_code in (400, 401)
                 assert (await auth.load_access_token("whoop-member-access")) is None
                 validated = await auth.load_access_token(tokens["access_token"])
@@ -199,7 +203,7 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
                 )
                 assert await auth.load_access_token(expired) is None
                 refreshed = await browser.post(
-                    BASE + "/token",
+                    base + "/token",
                     data={
                         "grant_type": "refresh_token",
                         "refresh_token": tokens["refresh_token"],
@@ -216,7 +220,7 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
                     "Accept": "application/json, text/event-stream",
                 }
                 result = await browser.post(
-                    BASE + "/mcp",
+                    base + "/mcp",
                     headers=headers,
                     json={
                         "jsonrpc": "2.0",

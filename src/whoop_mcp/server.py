@@ -35,9 +35,7 @@ if not ASSETS.is_dir():
 def create_app(
     base: str | None = None, client: httpx.AsyncClient | None = None, auth=None
 ):
-    base = (
-        base or os.environ.get("PUBLIC_URL", "https://tendle.ai/connectors/whoop")
-    ).rstrip("/")
+    base = (base or os.environ.get("PUBLIC_URL", "https://whoop.tendle.ai")).rstrip("/")
     parsed = urlsplit(base)
     if (
         parsed.scheme not in ("https", "http")
@@ -83,6 +81,7 @@ def create_app(
             base_url=base,
             valid_scopes=api.SCOPES,
             token_endpoint_auth_method="client_secret_post",
+            fallback_refresh_token_expiry_seconds=30 * 24 * 3600,
             forward_pkce=False,
             forward_resource=False,
             service_documentation_url=base + "/mcp/docs",
@@ -195,7 +194,7 @@ def create_app(
     async def product(request):
         return HTMLResponse(
             '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>WHOOP by Tendle</title></head><body><p>Coming soon.</p><a href="'
-            + prefix
+            + base
             + '/manifest.json">Connector metadata</a></body></html>'
         )
 

@@ -31,7 +31,7 @@ async def rpc(client, method, params=None, token="alice"):
     if token:
         headers["Authorization"] = f"Bearer {token}"
     return await client.post(
-        "/connectors/whoop/mcp",
+        "/mcp",
         headers=headers,
         json={"jsonrpc": "2.0", "id": 1, "method": method, "params": params or {}},
     )
@@ -69,7 +69,8 @@ async def session():
         app = create_app(client=provider, auth=TestAuth())
         async with app.router.lifespan_context(app):
             async with httpx.AsyncClient(
-                transport=httpx.ASGITransport(app=app), base_url="https://tendle.ai"
+                transport=httpx.ASGITransport(app=app),
+                base_url="https://whoop.tendle.ai",
             ) as client:
                 yield client, requests
 
@@ -91,15 +92,17 @@ async def test_protocol_docs_and_public_surfaces(session):
     assert len(tools) == 4
     for tool in tools:
         assert tool["annotations"]["readOnlyHint"]
-    doc = await client.get("/connectors/whoop/mcp/docs")
+    doc = await client.get("/mcp/docs")
     tool_doc = (await rpc(client, "tools/call", {"name": "whoop_get_docs"})).json()[
         "result"
     ]["content"][0]["text"]
     assert doc.text == tool_doc
     assert "max_pages" in doc.text
     assert not calls
+    product = await client.get("/")
+    assert 'href="https://whoop.tendle.ai/manifest.json"' in product.text
     for path in ("", "/manifest.json", "/mcp/icon", "/healthz"):
-        assert (await client.get("/connectors/whoop" + path)).status_code == 200
+        assert (await client.get(path or "/")).status_code == 200
 
 
 async def test_auth_isolation_and_read_flow(session):
@@ -285,12 +288,10 @@ async def test_disabled_configuration(monkeypatch):
     app = create_app()
     async with app.router.lifespan_context(app):
         async with httpx.AsyncClient(
-            transport=httpx.ASGITransport(app=app), base_url="https://tendle.ai"
+            transport=httpx.ASGITransport(app=app), base_url="https://whoop.tendle.ai"
         ) as client:
             assert (await rpc(client, "tools/list")).status_code == 503
-            assert not (await client.get("/connectors/whoop/healthz")).json()[
-                "oauth_configured"
-            ]
+            assert not (await client.get("/healthz")).json()["oauth_configured"]
     monkeypatch.setenv("WHOOP_CLIENT_ID", "incomplete")
     with pytest.raises(ValueError, match="together"):
         create_app()
