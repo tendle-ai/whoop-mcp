@@ -34,7 +34,7 @@ class UpstreamTokens:
             "refresh_token": "whoop-refresh-1",
             "expires_in": 3600,
             "token_type": "Bearer",
-            "scope": " ".join(SCOPES),
+            "scope": " ".join(scope for scope in SCOPES if scope != "offline"),
         }
 
     async def refresh_token(self, url, **kwargs):
@@ -46,7 +46,7 @@ class UpstreamTokens:
             "refresh_token": "whoop-refresh-2",
             "expires_in": 3600,
             "token_type": "Bearer",
-            "scope": " ".join(SCOPES),
+            "scope": " ".join(scope for scope in SCOPES if scope != "offline"),
         }
 
 
@@ -98,7 +98,9 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
                         "token_endpoint_auth_method": "none",
                         "grant_types": ["authorization_code", "refresh_token"],
                         "response_types": ["code"],
-                        "scope": " ".join(SCOPES),
+                        "scope": " ".join(
+                            scope for scope in SCOPES if scope != "offline"
+                        ),
                     },
                 )
                 assert registration.status_code == 201, registration.text
@@ -120,7 +122,9 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
                         "code_challenge": challenge,
                         "code_challenge_method": "S256",
                         "state": "client-state",
-                        "scope": " ".join(SCOPES),
+                        "scope": " ".join(
+                            scope for scope in SCOPES if scope != "offline"
+                        ),
                         "resource": BASE + "/mcp",
                     },
                 )

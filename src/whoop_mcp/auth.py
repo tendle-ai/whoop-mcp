@@ -10,7 +10,9 @@ from .api import BASE, SCOPES
 
 class WhoopVerifier(TokenVerifier):
     def __init__(self, client: httpx.AsyncClient):
-        super().__init__(required_scopes=SCOPES)
+        super().__init__(
+            required_scopes=[scope for scope in SCOPES if scope != "offline"]
+        )
         self.client = client
 
     async def verify_token(self, token: str) -> AccessToken | None:
