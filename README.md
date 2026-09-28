@@ -1,112 +1,123 @@
-# WHOOP MCP
+<p align="center">
+  <img src="assets/icon.png" width="80" height="80" alt="WHOOP" />
+</p>
+
+<h1 align="center">WHOOP MCP</h1>
+<p align="center">Your sleep, recovery, strain, and workouts, available to your AI agent.</p>
+<p align="center">
+  <a href="https://whoop.tendle.ai/mcp/docs">Docs</a> ·
+  <a href="https://tendle.ai/connectors/whoop/manifest.json">Manifest</a> ·
+  <a href="https://tendle.ai/connectors/whoop">Connector page</a> ·
+  <a href="https://tendle.ai">Built by Tendle</a>
+</p>
 
 > [!TIP]
-> **Agent quickstart** · Copy this instruction into your agent:
+> **Agent quickstart** · Paste this into your agent:
 >
-> **Add WHOOP from https://whoop.tendle.ai**
->
-> MCP endpoint: `https://whoop.tendle.ai/mcp` · [Setup docs](https://whoop.tendle.ai/mcp/docs)
->
-> Name the connector **WHOOP**. If your client asks for a provider ID, use `whoop` without a `tendle-` prefix.
-> Connect using your client’s managed OAuth flow and authorize your WHOOP account. Read `whoop_get_docs`, then verify the connection with `whoop_get_profile`.
+> Add WHOOP from https://whoop.tendle.ai
 
-WHOOP MCP connector by Tendle. Check out the full catalog of connectors at https://tendle.ai
+| Connection | |
+| :--- | :--- |
+| MCP endpoint | `https://whoop.tendle.ai/mcp` |
+| Transport | Streamable HTTP |
+| Access | Read-only, through the official WHOOP v2 API |
+| Authentication | Sign in to WHOOP through your client's managed OAuth flow |
 
-A read-only connector for members who want their agent to review recovery, sleep,
-strain, and workouts over time. Uses the official WHOOP v2 API and browser OAuth.
+Name the connector **WHOOP**. If your client needs a provider ID, use `whoop`.
+Muse displays this as **Whoop**. You do not need a developer account or API key
+to use the hosted connector.
 
-- [Product](https://tendle.ai/connectors/whoop)
-- [Manifest](https://tendle.ai/connectors/whoop/manifest.json)
-- [Plain-text documentation](https://whoop.tendle.ai/mcp/docs)
-- MCP URL: `https://whoop.tendle.ai/mcp`
+## Try asking
 
-**Verified in Muse on 2026-09-28:** platform-managed OAuth with dynamic client
-registration and PKCE completed through a hosted HTTPS callback. The documentation,
-connected profile, and one recovery record were successfully read through Muse.
-Each user must authorize their own WHOOP account.
+- “How did I sleep last night?”
+- “Compare my recovery and strain over the past two weeks.”
+- “Which workouts contributed the most strain this week?”
+- “Show how my resting heart rate changed this month.”
 
-## Tools
+## Four tools
 
-| Tool | Purpose |
-| --- | --- |
-| `whoop_get_docs` | Setup, workflows, generated input schemas, units and limitations |
-| `whoop_get_profile` | Confirm account identity; optionally read body measurements |
-| `whoop_list_records` | Paginated cycles, recovery, sleep or workouts in a time window |
-| `whoop_get_record` | One cycle/recovery by cycle ID, or sleep/workout by v2 UUID |
+| Tool | What it does |
+| :--- | :--- |
+| `whoop_get_docs` | Connection guidance, units, limits, and current tool schemas |
+| `whoop_get_profile` | Account identity and optional body measurements |
+| `whoop_list_records` | Cycles, recovery, sleep, or workouts within a time window |
+| `whoop_get_record` | One record by its cycle ID or sleep/workout UUID |
 
-Get the latest recovery, follow its `sleep_id`, or retrieve complete date windows
-for comparisons. There are no redundant daily/weekly wrappers: agents use the same
-records and report coverage, missing observations, calibration and score states.
-Scores are not medical diagnoses. No journal, strength-training sets, continuous
-heart-rate stream, or write operations are exposed by this connector.
+Start with `whoop_get_docs`, then `whoop_get_profile` to confirm the connected
+account. A recovery record's `sleep_id` links it to the corresponding sleep.
 
-## Authentication and privacy
+**Scope:** this connector reads your records. It cannot change them or retrieve
+journal entries, strength-training sets, or a continuous heart-rate stream.
+Scores are not medical diagnoses.
 
-Use the client's built-in or platform-managed OAuth connector setup. It should
-handle discovery, dynamic registration, authorization-code PKCE, secure credential
-storage, and refresh. Users do not need WHOOP developer app credentials.
+## Sign in once
 
-WHOOP returns to Tendle's `/auth/callback`, then Tendle redirects to the callback
-registered by the client. Hosted clients should provide a platform HTTPS callback.
-Loopback callbacks are appropriate only when an active client listener is reachable
-from the browser in the same network environment. Do not invent callback URLs or
-create an ad hoc localhost listener for a hosted agent. If the client cannot
-complete managed OAuth, report that limitation. Device-code and manual connection-key
-flows are not implemented. Keep WHOOP's registered callback pointing to Tendle.
+Your MCP client handles OAuth discovery, dynamic client registration, PKCE, secure
+credential storage, and refresh. Authorize your own WHOOP account in the browser;
+never put passwords or tokens into chat or tool arguments.
 
-An OAuth-capable MCP client opens the WHOOP sign-in/consent flow. No Tendle account,
-manual API token, password, or health data in tool arguments is needed. Confirm the
-connected identity with `whoop_get_profile`. Reauthorize to change WHOOP accounts.
+WHOOP returns to Tendle, which completes the flow through your client's registered
+callback. Hosted agents need a hosted HTTPS callback. A localhost callback only
+works when the client actually runs a reachable local listener.
 
-FastMCP's OAuth proxy issues audience-bound MCP tokens and keeps upstream tokens
-behind encrypted persistent storage. PKCE is enforced between the client and
-proxy; upstream WHOOP uses its documented confidential-client authorization-code
-flow. Consent remains enabled to bind the requesting client and browser.
-Token verification uses WHOOP's profile endpoint. WHOOP enforces each data scope.
-Requested read scopes cover all four tools; `offline` enables refresh.
+One connection represents one WHOOP account. Reauthorize to switch accounts.
+To revoke upstream access, remove Tendle in WHOOP's connected integrations;
+disconnecting it in your MCP client alone does not revoke that grant.
 
-Health records are not persisted or cached by the connector, but your client sees
-requested results. OAuth state persists under `FASTMCP_HOME`; protect that directory
-and the signing key. The default refresh lifetime is 30 days if WHOOP omits expiry.
-Expired encrypted files may remain until operator cleanup.
-Revoke Tendle in WHOOP's connected integrations to stop upstream access. Client
-removal alone is not upstream revocation. Contact hello@tendle.ai for earlier
-server-side credential deletion. WHOOP tokens that are revoked or expire fail closed.
+<details>
+<summary>Privacy and credential storage</summary>
+
+Health records are not persisted or cached by this connector. Your client receives
+the records it requests. FastMCP's OAuth proxy keeps upstream tokens in encrypted
+persistent storage and issues audience-bound MCP tokens. The default refresh
+lifetime is 30 days when WHOOP omits an expiry.
+
+Token validation uses WHOOP's profile endpoint; WHOOP enforces the granted scopes.
+Expired encrypted files may remain until operator cleanup. Contact
+[hello@tendle.ai](mailto:hello@tendle.ai) for earlier server-side credential deletion.
+
+Diagnostics include stage, method, status, known OAuth error code, callback host,
+and request ID. They exclude query strings, headers, bodies, tokens, and health data.
+
+</details>
+
+## Reading the results
+
+- **Check coverage.** `has_more` means there are more records. Continue with the
+  cursor and original time bounds; each call fetches at most ten pages of 25 records.
+- **Keep time zones explicit.** Time windows require offsets. Pagination fixes the
+  end time, but WHOOP does not guarantee snapshot consistency. Deduplicate by ID.
+- **Allow for syncing and scoring.** A fresh API response can still contain older
+  wearable data or a record whose score is not ready.
+- **Respect shared limits.** WHOOP's default app quota is 100 requests/minute and
+  10,000/day, including profile reads used for token validation. Sandbox apps allow
+  ten members; higher tiers require WHOOP review.
 
 ## Run locally
 
-Python 3.12+ and [uv](https://docs.astral.sh/uv/) are required.
+Requires **Python 3.12+** and [uv](https://docs.astral.sh/uv/).
 
 ```sh
 uv sync --locked
 cp .env.example .env
-# Fill the local .env through a secure editor, then:
+# Configure your developer-app credentials in .env, then:
 uv run --env-file .env whoop-mcp
 ```
 
-Register an app in the [WHOOP developer dashboard](https://developer-dashboard.whoop.com).
-Use the exact callback `PUBLIC_URL/auth/callback`, e.g.
-`http://localhost:8081/auth/callback` locally, or
-`https://whoop.tendle.ai/auth/callback` for the hosted connector.
-Enable `read:profile`, `read:body_measurement`, `read:cycles`, `read:recovery`,
-`read:sleep`, `read:workout`; request `offline` for refresh.
+Create an app in the [WHOOP developer dashboard](https://developer-dashboard.whoop.com).
+Set its callback to your exact `PUBLIC_URL/auth/callback`, for example
+`http://localhost:8081/auth/callback` locally. Enable `read:profile`,
+`read:body_measurement`, `read:cycles`, `read:recovery`, `read:sleep`, and
+`read:workout`; request `offline` for refresh.
 
-Set `WHOOP_CLIENT_ID`, `WHOOP_CLIENT_SECRET`, and an independently generated
-`JWT_SIGNING_KEY` together. Generate the key locally with
-`python -c 'import secrets; print(secrets.token_urlsafe(48))'`.
-Keep the key stable across restarts. Never commit `.env` or `.state`.
-With all credentials absent, public surfaces run but `/mcp` returns a clear 503
-setup-pending error. Partial configuration fails startup. `/healthz` reports
-liveness and configuration, not proof that WHOOP is reachable or a grant works.
+Set `WHOOP_CLIENT_ID`, `WHOOP_CLIENT_SECRET`, and `JWT_SIGNING_KEY` together.
+Generate an independent signing key and keep it stable across restarts:
 
-For self-hosting, use HTTPS, one worker, a private persistent `FASTMCP_HOME`, and a
-unique hostname. Route the hostname to the application, preserving request paths.
-WHOOP uses its own hostname because some clients reserve a hostname for one
-connector and reject a second connector on another path. The Tendle catalog
-remains at the product and manifest URLs above. Disable access logs
-on OAuth callback/token routes. WHOOP refresh tokens rotate; multiple workers or
-replicas are unsupported. Use the locked dependencies and protect secret backups.
-Update public manifest URLs and activation text for your own deployment.
+```sh
+python -c 'import secrets; print(secrets.token_urlsafe(48))'
+```
+
+Never commit `.env` or `.state`.
 
 ```sh
 uv run pytest
@@ -115,55 +126,51 @@ uv run ruff format --check .
 uv build
 ```
 
-OAuth diagnostics record stage, method, HTTP status, known OAuth error code,
-and registration callback host with a server-generated request ID. They exclude
-query strings, headers, raw bodies, tokens, and health data. Full access logging
-remains disabled.
+<details>
+<summary>Self-hosting and verification</summary>
 
-## Behavior and limits
+Use HTTPS, one worker, and a private persistent `FASTMCP_HOME`. Refresh tokens
+rotate; multiple workers or replicas are unsupported. Give the connector its own
+hostname, preserve request paths, disable access logs on OAuth callback/token
+routes, and update the public manifest for your instance.
 
-Time windows require offsets; pagination pins the end time. A returned page is not
-a complete inventory when `has_more` is true. At most ten pages of 25 records are
-fetched per call; continue with the cursor and original bounds. Errors on later
-pages fail the operation rather than returning a misleading complete report.
-WHOOP does not promise snapshot consistency between pages. Use IDs to deduplicate.
-Fresh retrieval does not mean the wearable has synced or scoring is finished.
+With credentials absent, public pages work but `/mcp` returns a setup-pending 503.
+Partial configuration fails startup. `/healthz` reports liveness and configuration,
+not whether a user's grant works. Device-code and manual connection-key flows are
+not implemented.
 
-WHOOP's default app quotas are 100 requests/minute and 10,000/day, shared across
-members, including profile reads for token validation. New apps support up to ten
-members on the Sandbox tier. Higher tiers require WHOOP review. No claim of WHOOP
-approval or verified compatibility with every client is made. Muse has been tested;
-other clients, including Grok bots, still require their own integration verification.
+The test suite covers OAuth consent, PKCE, code replay rejection, refresh,
+encrypted restart persistence, user isolation, pagination, and upstream failures.
+Live Muse installation has passed sign-in, phone verification, consent, hosted
+callback, and stored-credential reads for docs, profile, and recovery. Other
+clients need their own integration verification.
 
-## Verification
+</details>
 
-48 local tests pass, including an HTTP OAuth simulation through consent, PKCE,
-code replay rejection, token refresh, MCP reads, encrypted restart persistence,
-user isolation, pagination and upstream failures. Live Muse setup completed with
-WHOOP sign-in, phone verification, consent, an HTTPS callback and a successful
-token exchange. `whoop_get_docs`, `whoop_get_profile`, and a one-record
-`whoop_list_records` recovery query succeeded. Refresh is covered by simulated
-HTTP tests; automatic refresh in Muse has not yet been observed.
+## Sources and license
 
-## Research and provenance
+Built against the [WHOOP v2 API](https://developer.whoop.com/api/),
+[OAuth documentation](https://developer.whoop.com/docs/developing/oauth/),
+[app approval rules](https://developer.whoop.com/docs/developing/app-approval/), and
+[rate limits](https://developer.whoop.com/docs/developing/rate-limiting/).
+The MCP/OAuth implementation uses [FastMCP](https://gofastmcp.com/servers/auth/oauth-proxy)
+with dependencies pinned in `uv.lock`.
 
-Reviewed on 2026-09-28:
+<details>
+<summary>Workflow research and branding</summary>
 
-- [Official API and schema](https://developer.whoop.com/api/) establish supported v2 reads, pagination, scopes and units.
-- [OAuth](https://developer.whoop.com/docs/developing/oauth/) documents confidential-client authorization and rotating refresh tokens.
-- [App approval](https://developer.whoop.com/docs/developing/app-approval/) and [rate limits](https://developer.whoop.com/docs/developing/rate-limiting/) constrain rollout and polling.
-- [WHOOP community request](https://www.community.whoop.com/t/feature-request-official-whoop-mcp-server-for-llm-use-outside-of-whoop/15329) asks for personal analysis outside WHOOP and cross-source context.
-- [Existing official-API connector](https://github.com/jcuw/whoop-mcp) demonstrates read-only personal-agent workflows. This implementation is original, not a source-code fork.
-- [Reddit discussion](https://www.reddit.com/r/modelcontextprotocol/comments/1t04z31/i_built_an_unofficial_opensource_whoop_mcp_server/) provides reported use cases, not proof of broad demand.
-- [FastMCP OAuth proxy](https://gofastmcp.com/servers/auth/oauth-proxy) supplies the maintained MCP/OAuth protocol implementation; exact dependencies are in `uv.lock`.
+Research reviewed on 2026-09-28 included a
+[WHOOP community request](https://www.community.whoop.com/t/feature-request-official-whoop-mcp-server-for-llm-use-outside-of-whoop/15329),
+[an existing official-API connector](https://github.com/jcuw/whoop-mcp), and
+[a community implementation discussion](https://www.reddit.com/r/modelcontextprotocol/comments/1t04z31/i_built_an_unofficial_opensource_whoop_mcp_server/).
+These informed sleep/recovery comparisons and historical workout analysis.
+This implementation is original, not a source-code fork. Private mobile APIs and
+trusted-healthcare-partner endpoints are outside its scope.
 
-These sources support recovery/sleep comparisons, workout review and historical
-analysis. Community interest in journal data does not make it available through
-the official API. Private mobile APIs and trusted-healthcare-partner endpoints
-are deliberately outside this personal connector's scope.
+The icon comes from the [WHOOP integration asset bundle](https://developer.whoop.com/docs/developing/design-guidelines/).
+WHOOP branding remains WHOOP's property and is subject to its brand guidelines.
 
-The icon is the official WHOOP Circle Black asset from the
-[WHOOP integration asset bundle](https://developer.whoop.com/docs/developing/design-guidelines/),
-resized onto a 512x512 PNG canvas. WHOOP branding remains WHOOP's property, subject
-to its brand guidelines and terms. The Tendle-authored code is licensed under
-Apache-2.0; that license does not grant WHOOP trademark rights or relicense its icon.
+</details>
+
+[Apache-2.0 license](LICENSE) for Tendle-authored code; no WHOOP trademark or icon
+rights are granted. [Support](mailto:hello@tendle.ai).
