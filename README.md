@@ -11,21 +11,11 @@
   <a href="https://tendle.ai">Built by Tendle</a>
 </p>
 
-> [!TIP]
-> **Agent quickstart** · Paste this into your agent:
->
-> Add WHOOP from https://whoop.tendle.ai
+## Agent quickstart
 
-| Connection | |
-| :--- | :--- |
-| MCP endpoint | `https://whoop.tendle.ai/mcp` |
-| Transport | Streamable HTTP |
-| Access | Read-only, through the official WHOOP v2 API |
-| Authentication | Sign in to WHOOP through your client's managed OAuth flow |
-
-Name the connector **WHOOP**. If your client needs a provider ID, use `whoop`.
-Muse displays this as **Whoop**. You do not need a developer account or API key
-to use the hosted connector.
+```text
+Add WHOOP from https://whoop.tendle.ai
+```
 
 ## Try asking
 
