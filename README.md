@@ -1,5 +1,15 @@
 # WHOOP MCP
 
+> [!TIP]
+> **Agent quickstart** · Copy this instruction into your agent:
+>
+> **Add WHOOP from https://whoop.tendle.ai**
+>
+> MCP endpoint: `https://whoop.tendle.ai/mcp` · [Setup docs](https://whoop.tendle.ai/mcp/docs)
+>
+> Name the connector **WHOOP**. If your client asks for a provider ID, use `whoop` without a `tendle-` prefix.
+> Connect using your client’s managed OAuth flow and authorize your WHOOP account. Read `whoop_get_docs`, then verify the connection with `whoop_get_profile`.
+
 WHOOP MCP connector by Tendle. Check out the full catalog of connectors at https://tendle.ai
 
 A read-only connector for members who want their agent to review recovery, sleep,
