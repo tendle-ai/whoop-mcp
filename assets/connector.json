@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "connector_name": "WHOOP",
+  "product_website": "https://tendle.ai/connectors/whoop",
+  "description": "Read your WHOOP recovery, sleep, strain, and workouts to understand daily readiness and historical trends.",
+  "example_prompts": [
+    "Show my latest recovery and the sleep associated with it.",
+    "Compare my recovery and sleep over the last two weeks, noting missing or unscored days.",
+    "Show my workouts from the past week with strain and heart-rate zones.",
+    "Confirm which WHOOP account is connected and show my body measurements."
+  ],
+  "connector_icon": "https://tendle.ai/connectors/whoop/mcp/icon",
+  "payments": false,
+  "your_name": "Nathaniel Angafor",
+  "work_email": "nate@tendle.ai",
+  "support_email_or_url": "hello@tendle.ai",
+  "privacy_policy": "https://tendle.ai/privacy",
+  "terms_of_service": "https://tendle.ai/tos",
+  "anything_else": "Read-only official WHOOP v2 API. OAuth app activation is pending; personal data access requires WHOOP consent. No journal, private mobile APIs, or medical diagnosis.",
+  "technical_specs": {
+    "protocol": "MCP",
+    "transport": "streamable-http",
+    "endpoint": "https://tendle.ai/connectors/whoop/mcp",
+    "docs_url": "https://tendle.ai/connectors/whoop/mcp/docs",
+    "health_endpoint": "https://tendle.ai/connectors/whoop/healthz",
+    "authentication": {
+      "type": "oauth2",
+      "credential": "WHOOP browser authorization; MCP-issued bearer token managed by the client",
+      "configuration": "Add the MCP URL in an OAuth-capable client and authorize your own WHOOP account in the browser. Do not paste credentials into prompts.",
+      "public_operations": [
+        "product page",
+        "manifest",
+        "documentation page",
+        "icon",
+        "health"
+      ],
+      "note": "OAuth app activation is pending. Credentials are encrypted server-side for refresh; requested health records are sent to your MCP client but are not stored by this connector.",
+      "scopes": [
+        "read:profile",
+        "read:body_measurement",
+        "read:cycles",
+        "read:recovery",
+        "read:sleep",
+        "read:workout",
+        "offline"
+      ]
+    },
+    "discovery": "Standard MCP tools/list after OAuth; public documentation describes all tools."
+  },
+  "company": "Tendle",
+  "developer": "Nathaniel Angafor"
+}
