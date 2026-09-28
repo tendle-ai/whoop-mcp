@@ -10,9 +10,10 @@ strain, and workouts over time. Uses the official WHOOP v2 API and browser OAuth
 - [Plain-text documentation](https://tendle.ai/connectors/whoop/mcp/docs)
 - MCP URL: `https://tendle.ai/connectors/whoop/mcp`
 
-**Activation pending:** a WHOOP developer app and consenting member are needed
-before hosted personal-data access can be enabled and verified. Public pages and
-mocked integration tests are not evidence of a completed live WHOOP connection.
+**OAuth configured:** the hosted connector advertises OAuth discovery, accepts
+client registration and serves browser consent. A member must authorize WHOOP
+before personal-data reads can be tested. This is not yet a verified live account
+connection or a completed Muse/Grok client test.
 
 ## Tools
 
@@ -110,7 +111,7 @@ live member-data tests remain necessary before launch.
 40 local tests pass, including an HTTP OAuth simulation through consent, PKCE,
 code replay rejection, token refresh, MCP reads, encrypted restart persistence,
 user isolation, pagination and upstream failures. Live WHOOP consent and real
-member-data reads remain blocked by the missing developer app credentials.
+member-data reads still require an authorized member connection.
 
 ## Research and provenance
 

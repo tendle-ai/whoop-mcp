@@ -16,7 +16,7 @@
   "support_email_or_url": "hello@tendle.ai",
   "privacy_policy": "https://tendle.ai/privacy",
   "terms_of_service": "https://tendle.ai/tos",
-  "anything_else": "Read-only official WHOOP v2 API. OAuth app activation is pending; personal data access requires WHOOP consent. No journal, private mobile APIs, or medical diagnosis.",
+  "anything_else": "Read-only official WHOOP v2 API. OAuth is configured; personal data access requires WHOOP account consent. No journal, private mobile APIs, or medical diagnosis.",
   "technical_specs": {
     "protocol": "MCP",
     "transport": "streamable-http",
@@ -34,7 +34,7 @@
         "icon",
         "health"
       ],
-      "note": "OAuth app activation is pending. Credentials are encrypted server-side for refresh; requested health records are sent to your MCP client but are not stored by this connector.",
+      "note": "OAuth is configured. Credentials are encrypted server-side for refresh; requested health records are sent to your MCP client but are not stored by this connector.",
       "scopes": [
         "read:profile",
         "read:body_measurement",
