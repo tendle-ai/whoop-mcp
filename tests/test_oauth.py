@@ -98,9 +98,7 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
                         "token_endpoint_auth_method": "none",
                         "grant_types": ["authorization_code", "refresh_token"],
                         "response_types": ["code"],
-                        "scope": " ".join(
-                            scope for scope in SCOPES if scope != "offline"
-                        ),
+                        "scope": " ".join(SCOPES),
                     },
                 )
                 assert registration.status_code == 201, registration.text
@@ -122,9 +120,7 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
                         "code_challenge": challenge,
                         "code_challenge_method": "S256",
                         "state": "client-state",
-                        "scope": " ".join(
-                            scope for scope in SCOPES if scope != "offline"
-                        ),
+                        "scope": " ".join(SCOPES),
                         "resource": BASE + "/mcp",
                     },
                 )
@@ -149,6 +145,7 @@ async def test_oauth_http_round_trip_and_refresh(monkeypatch):
                 upstream = parse_qs(urlsplit(response.headers["location"]).query)
                 assert upstream["redirect_uri"] == [BASE + "/auth/callback"]
                 assert "code_challenge" not in upstream
+                assert "offline" in upstream["scope"][0].split()
                 invalid_state = await browser.get(
                     BASE + "/auth/callback",
                     params={"code": "fake-whoop-code", "state": "unknown-state"},
